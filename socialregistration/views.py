@@ -235,7 +235,6 @@ class SetupCallback(SocialRegistration, View):
           and redirect the user further to either capture some data via
           form or generate a username automatically
         """
-        
         client = request.session[self.get_client().get_session_key()]
         
         # Get the lookup dictionary to find the user's profile
