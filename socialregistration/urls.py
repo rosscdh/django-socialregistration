@@ -24,6 +24,11 @@ if 'socialregistration.contrib.facebook' in settings.INSTALLED_APPS:
         url(r'^facebook/', include('socialregistration.contrib.facebook.urls',
             namespace='facebook')))
 
+if 'socialregistration.contrib.facebook_js' in settings.INSTALLED_APPS:
+    urlpatterns = urlpatterns + patterns('',
+        url(r'^facebook/', include('socialregistration.contrib.facebook_js.urls',
+            namespace='facebook_js')))
+
 if 'socialregistration.contrib.github' in settings.INSTALLED_APPS:
     urlpatterns = urlpatterns + patterns('',
         url(r'^github/', include('socialregistration.contrib.github.urls',
