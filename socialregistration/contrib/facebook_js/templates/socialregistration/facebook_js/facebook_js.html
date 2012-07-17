@@ -9,18 +9,36 @@
       xfbml      : true  // parse XFBML
     });
     // Additional initialization code here
-    FB.api('/me', function(user) {
-        var image = $('img#fb-profile-image');
-        var name = $('#fb-profile-name');
+    FB.getLoginStatus(function(response) {
+      if (response.status === 'connected') {
+        // the user is logged in and has authenticated your
+        // app, and response.authResponse supplies
+        // the user's ID, a valid access token, a signed
+        // request, and the time the access token 
+        // and signed request each expire
+        var uid = response.authResponse.userID;
+        var accessToken = response.authResponse.accessToken;
 
-        if (user && user.error == undefined) {
-            image.attr('src', 'http://graph.facebook.com/' + user.id + '/picture');
-            name.html(user.name);
-        } else {
-            // image.remove();
-            // name.remove();
-        }
-    });
+        FB.api('/me', function(user) {
+            var image = $('img#fb-profile-image');
+            var name = $('#fb-profile-name');
+
+            if (user && user.error == undefined) {
+                image.attr('src', 'http://graph.facebook.com/' + user.id + '/picture');
+                name.html(user.name);
+            } else {
+                // image.remove();
+                // name.remove();
+            }
+        });
+
+      } else if (response.status === 'not_authorized') {
+        // the user is logged in to Facebook, 
+        // but has not authenticated your app
+      } else {
+        // the user isn't logged in to Facebook.
+      }
+     });
   };
   // Load the SDK Asynchronously
   (function(d){
