@@ -1,45 +1,33 @@
-{% load url from future %}
 <div id="fb-root"></div>
-<script type="text/javascript">
-    window.fbAsyncInit = function() {
-            FB.init({
-                appId   : '{{ facebook_api_key }}',
-                channelUrl : '//{{ request.get_host }}{% url "socialregistration:facebook_js:channel" %}', // Channel File
-                status  : true, // check login status
-                cookie  : true, // enable cookies to allow the server to access the session
-                xfbml   : true // parse XFBML
-            });
-
-            FB.Event.subscribe('auth.login', function(response) {
-                if (response.authResponse) {
-                    console.log('Welcome!  Fetching your information.... ');
-                    FB.api('/me', function(response) {
-                        console.log('Good to see you, ' + response.name + '.');
-                    });
-                } else {
-                    console.log('User cancelled login or did not fully authorize.');
-                }
-            });
-    };
-
-    $('.fb-login-butt').live('click',function(event){
-        event.preventDefault();
-        FB.login(function(response) { 
-            var qs = Array();
-            for (var i in response.authResponse)
-            {
-                qs += i + '=' + response.authResponse[i] + '&';
-            }
-
-            url = '{% if logged_in %}{% url facebook_connect %}{% else %}{% url facebook_login %}{% endif %}?' + qs;
-            document.location = url;
-        },{scope:'user_about_me,read_stream,offline_access'});
+<script>
+  window.fbAsyncInit = function() {
+    FB.init({
+      appId      : '{{ FACEBOOK_API_KEY }}', // App ID
+      channelUrl : '//{{ request.get_host }}{% url socialregistration:facebook_js:channel %}', // Channel File
+      status     : true, // check login status
+      cookie     : true, // enable cookies to allow the server to access the session
+      xfbml      : true  // parse XFBML
     });
+    // Additional initialization code here
+    FB.api('/me', function(user) {
+        var image = $('img#fb-profile-image');
+        var name = $('#fb-profile-name');
 
-(function() {
-  var e = document.createElement('script');
-  e.src = document.location.protocol + '//connect.facebook.net/en_US/all.js';
-  e.async = true;
-  document.getElementById('fb-root').appendChild(e);
-}());
+        if (user && user.error == undefined) {
+            image.attr('src', 'http://graph.facebook.com/' + user.id + '/picture');
+            name.html(user.name);
+        } else {
+            // image.remove();
+            // name.remove();
+        }
+    });
+  };
+  // Load the SDK Asynchronously
+  (function(d){
+     var js, id = 'facebook-jssdk', ref = d.getElementsByTagName('script')[0];
+     if (d.getElementById(id)) {return;}
+     js = d.createElement('script'); js.id = id; js.async = true;
+     js.src = "//connect.facebook.net/en_US/all.js";
+     ref.parentNode.insertBefore(js, ref);
+   }(document));
 </script>
