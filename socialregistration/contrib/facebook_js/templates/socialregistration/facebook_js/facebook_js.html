@@ -9,6 +9,72 @@
       xfbml      : true  // parse XFBML
     });
     // Additional initialization code here
+
+    SocialUserLoginCallback = function SocialUserLoginCallback(response, uid, accessToken) {
+        var csrftoken = $("{% csrf_token %}").find('input[name=csrfmiddlewaretoken]').val();
+        response.csrfmiddlewaretoken = csrftoken;
+        if (uid != undefined) {
+            response.uid = uid;
+        }
+        if (accessToken != undefined) {
+            response.accessToken = accessToken;
+        }
+
+        var post_data = $.param(response);
+
+        $.ajax({
+          type: 'POST',
+          url: "{% url socialregistration:facebook_js:callback %}",
+          data: post_data,
+        })
+        .success(function(data, textStatus, jqXHR) {
+            var data = $.parseJSON(data);
+            console.log(data)
+        })
+        .error(function(jqXHR, textStatus, errorThrown) { 
+            var data = $.parseJSON(jqXHR.responseText);
+            console.log(data)
+        })
+        .complete(function() {});
+    };
+
+    SocialUserCallback = function SocialUserCallback(response) {
+        if (response.error == undefined && response.id != undefined) {
+            // user is logged in to facebook
+            if (response.authResponse != undefined) {
+                // is the authorized response, have just logged in and we have the access token
+                console.log('is the authorized response, have just logged in and we have the access token');
+                var uid = response.authResponse.userID;
+                var accessToken = response.authResponse.accessToken;
+                // setup callback
+                SocialUserLoginCallback(response, uid, accessToken);
+            } else {
+                // normal auth response no token
+                console.log('normal auth response no token')
+                console.log(response)
+                // login callback
+                SocialUserLoginCallback(response);
+            }
+        }
+    };
+
+    FbGetMe = function FbGetMe(response) {
+        FB.api('/me', function(response) {
+            var image = document.getElementById('fb-profile-image');
+            var name = document.getElementById('fb-profile-name');
+
+            SocialUserCallback(response);
+
+            if (response && response.error == undefined) {
+                image.src = 'http://graph.facebook.com/' + response.id + '/picture';
+                name.innerHTML = response.name;
+            } else {
+                // console.log('There was an error accessing the user profile:' + user.error.message)
+            }
+        });
+    };
+
+
     FB.getLoginStatus(function(response) {
       if (response.status === 'connected') {
         // the user is logged in and has authenticated your
@@ -19,27 +85,24 @@
         var uid = response.authResponse.userID;
         var accessToken = response.authResponse.accessToken;
 
-        FB.api('/me', function(user) {
-            var image = $('img#fb-profile-image');
-            var name = $('#fb-profile-name');
-
-            if (user && user.error == undefined) {
-                image.attr('src', 'http://graph.facebook.com/' + user.id + '/picture');
-                name.html(user.name);
-            } else {
-                // image.remove();
-                // name.remove();
-            }
-        });
+        FbGetMe(response);
 
       } else if (response.status === 'not_authorized') {
         // the user is logged in to Facebook, 
         // but has not authenticated your app
       } else {
         // the user isn't logged in to Facebook.
+        FB.login(function(response) {
+          if (response.authResponse) {
+              FbGetMe(response);
+          } else {
+            //console.log('User cancelled login or did not fully authorize.');
+          }
+        }, {scope: '{{ FACEBOOK_REQUEST_PERMISSIONS }}'});
       }
      });
   };
+  
   // Load the SDK Asynchronously
   (function(d){
      var js, id = 'facebook-jssdk', ref = d.getElementsByTagName('script')[0];

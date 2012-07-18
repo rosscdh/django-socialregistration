@@ -1,4 +1,4 @@
 from django.contrib import admin
-from socialregistration.contrib.facebook.models import FacebookProfile
+from socialregistration.contrib.facebook_js.models import FacebookProfile
 
 admin.site.register(FacebookProfile)

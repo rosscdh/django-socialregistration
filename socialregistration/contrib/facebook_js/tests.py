@@ -1,7 +1,7 @@
 from django.conf import settings
 from django.core.urlresolvers import reverse
 from django.test import TestCase
-from socialregistration.contrib.facebook.models import FacebookProfile
+from socialregistration.contrib.facebook_js.models import FacebookProfile
 from socialregistration.tests import TemplateTagTest, OAuth2Test, get_mock_func
 import json
 import mock

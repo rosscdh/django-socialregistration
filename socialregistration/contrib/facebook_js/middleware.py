@@ -1,5 +1,5 @@
 from django.utils.functional import SimpleLazyObject
-from socialregistration.contrib.facebook.models import FacebookAccessToken, \
+from socialregistration.contrib.facebook_js.models import FacebookAccessToken, \
     FacebookProfile
 import facebook
 
