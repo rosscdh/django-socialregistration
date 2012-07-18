@@ -29,14 +29,15 @@ class FacebookAccessToken(models.Model):
     class Meta:
         db_table = 'socialregistration_facebookaccesstoken'
 
-def save_facebook_token(sender, user, profile, client, **kwargs):    
-    try:
-        FacebookAccessToken.objects.get(profile=profile).delete()
-    except FacebookAccessToken.DoesNotExist:
-        pass
+def save_facebook_token(sender, user, profile, client, **kwargs):
+    if hasattr(client, 'access_token'):
+        try:
+            FacebookAccessToken.objects.get(profile=profile).delete()
+        except FacebookAccessToken.DoesNotExist:
+            pass
 
-    FacebookAccessToken.objects.create(profile=profile,
-        access_token=client.graph.access_token)
+        FacebookAccessToken.objects.create(profile=profile,
+            access_token=client.access_token)
 
 connect.connect(save_facebook_token, sender=FacebookProfile,
     dispatch_uid='socialregistration.facebook.connect')
