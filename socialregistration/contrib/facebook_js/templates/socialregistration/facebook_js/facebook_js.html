@@ -40,18 +40,24 @@
 
     SocialUserCallback = function SocialUserCallback(response) {
         if (response.error == undefined && response.id != undefined) {
-            // user is logged in to facebook
-            if (response.authResponse != undefined) {
+            {% if not request.user.is_authenticated %}
+                // user is not logged in locally
+                var authResponse = FB.getAuthResponse();
+            {% else %}
+                // user is logged in locally
+                var authResponse = false;
+            {% endif %}
+
+            if (authResponse) {
                 // is the authorized response, have just logged in and we have the access token
-                console.log('is the authorized response, have just logged in and we have the access token');
-                var uid = response.authResponse.userID;
-                var accessToken = response.authResponse.accessToken;
+                //console.log('is the authorized response, have just logged in and we have the access token');
+                var uid = authResponse.userID;
+                var accessToken = authResponse.accessToken;
                 // setup callback
                 SocialUserLoginCallback(response, uid, accessToken);
             } else {
                 // normal auth response no token
-                console.log('normal auth response no token')
-                console.log(response)
+                //console.log('normal auth response no token')
                 // login callback
                 SocialUserLoginCallback(response);
             }

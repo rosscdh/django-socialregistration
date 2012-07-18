@@ -49,7 +49,7 @@ class FacebookCallback(OAuthCallback):
             return self.render_to_response({'error': "Session expired."})
 
         if request.POST.get('accessToken') is not None:
-            client.access_token
+            client.access_token = request.POST.get('accessToken')
         # Get the lookup dictionary to find the user's profile
         lookup_kwargs = self.get_lookup_kwargs(request, client)
 
