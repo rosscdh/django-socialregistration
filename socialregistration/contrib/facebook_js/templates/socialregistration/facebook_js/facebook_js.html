@@ -98,15 +98,29 @@
         // but has not authenticated your app
       } else {
         // the user isn't logged in to Facebook.
-        FB.login(function(response) {
-          if (response.authResponse) {
-              FbGetMe(response);
-          } else {
-            //console.log('User cancelled login or did not fully authorize.');
-          }
-        }, {scope: '{{ FACEBOOK_REQUEST_PERMISSIONS }}'});
       }
      });
+
+    $('#fb-login-button').live('click', function(event){
+        FB.login(function(response) {
+            if (response.authResponse) {
+                FbGetMe(response);
+            } else {
+                //console.log('User cancelled login or did not fully authorize.');
+            }
+        }, {scope: '{{ FACEBOOK_REQUEST_PERMISSIONS }}'});
+     });
+
+    $('.logout').live('click', function(event){
+        event.preventDefault();
+        var self = $(this);
+        FB.logout(function(response) {
+        // user is now logged out
+            var url = self.attr('href');
+            document.location = url;
+        });
+     });
+
   };
   
   // Load the SDK Asynchronously
