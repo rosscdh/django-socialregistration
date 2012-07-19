@@ -11,6 +11,7 @@
     // Additional initialization code here
 
     SocialUserLoginCallback = function SocialUserLoginCallback(response, uid, accessToken) {
+
         var csrftoken = $("{% csrf_token %}").find('input[name=csrfmiddlewaretoken]').val();
         response.csrfmiddlewaretoken = csrftoken;
         if (uid != undefined) {
@@ -28,31 +29,30 @@
           data: post_data,
         })
         .success(function(data, textStatus, jqXHR) {
-            var data = $.parseJSON(data);
-            console.log(data)
+            console.log('')
+            document.location.reload();
         })
         .error(function(jqXHR, textStatus, errorThrown) { 
             var data = $.parseJSON(jqXHR.responseText);
-            console.log(data)
         })
         .complete(function() {});
+
     };
 
     SocialUserCallback = function SocialUserCallback(response) {
         if (response.error == undefined && response.id != undefined) {
-            {% if not request.user.is_authenticated %}
-                // user is not logged in locally
-                var authResponse = FB.getAuthResponse();
-            {% else %}
-                // user is logged in locally
-                var authResponse = false;
-            {% endif %}
-
-            if (authResponse) {
+            // {% if not request.user.is_authenticated %}
+            //     // user is not logged in locally
+            //     var authResponse = FB.getAuthResponse();
+            // {% else %}
+            //     // user is logged in locally
+            //     var authResponse = false;
+            // {% endif %}
+            if (response.authResponse != undefined) {
                 // is the authorized response, have just logged in and we have the access token
                 //console.log('is the authorized response, have just logged in and we have the access token');
-                var uid = authResponse.userID;
-                var accessToken = authResponse.accessToken;
+                var uid = request.authResponse.userID;
+                var accessToken = request.authResponse.accessToken;
                 // setup callback
                 SocialUserLoginCallback(response, uid, accessToken);
             } else {
@@ -64,12 +64,10 @@
         }
     };
 
-    FbGetMe = function FbGetMe(response) {
+    SocialFBGetMe = function SocialFBGetMe(response) {
         FB.api('/me', function(response) {
             var image = document.getElementById('fb-profile-image');
             var name = document.getElementById('fb-profile-name');
-
-            SocialUserCallback(response);
 
             if (response && response.error == undefined) {
                 image.src = 'http://graph.facebook.com/' + response.id + '/picture';
@@ -91,7 +89,7 @@
         var uid = response.authResponse.userID;
         var accessToken = response.authResponse.accessToken;
 
-        FbGetMe(response);
+        SocialFBGetMe(response);
 
       } else if (response.status === 'not_authorized') {
         // the user is logged in to Facebook, 
@@ -101,25 +99,17 @@
       }
      });
 
-    $('#fb-login-button').live('click', function(event){
+    SocialFBLogin = function SocialFBLogin() {
         FB.login(function(response) {
             if (response.authResponse) {
-                FbGetMe(response);
+                FB.api('/me', function(me_response) {
+                    SocialUserCallback(me_response);
+                });
             } else {
                 //console.log('User cancelled login or did not fully authorize.');
             }
         }, {scope: '{{ FACEBOOK_REQUEST_PERMISSIONS }}'});
-     });
-
-    $('.logout').live('click', function(event){
-        event.preventDefault();
-        var self = $(this);
-        FB.logout(function(response) {
-        // user is now logged out
-            var url = self.attr('href');
-            document.location = url;
-        });
-     });
+     };
 
   };
   
