@@ -100,15 +100,9 @@
      });
 
     SocialFBLogin = function SocialFBLogin() {
-        FB.login(function(response) {
-            if (response.authResponse) {
-                FB.api('/me', function(me_response) {
-                    SocialUserCallback(me_response);
-                });
-            } else {
-                //console.log('User cancelled login or did not fully authorize.');
-            }
-        }, {scope: '{{ FACEBOOK_REQUEST_PERMISSIONS }}'});
+        FB.api('/me', function(me_response) {
+            SocialUserCallback(me_response);
+        });
      };
 
   };
