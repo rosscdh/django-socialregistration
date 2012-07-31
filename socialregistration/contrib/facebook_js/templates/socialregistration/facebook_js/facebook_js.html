@@ -41,13 +41,6 @@
 
     SocialUserCallback = function SocialUserCallback(response) {
         if (response.error == undefined && response.id != undefined) {
-            // {% if not request.user.is_authenticated %}
-            //     // user is not logged in locally
-            //     var authResponse = FB.getAuthResponse();
-            // {% else %}
-            //     // user is logged in locally
-            //     var authResponse = false;
-            // {% endif %}
             if (response.authResponse != undefined) {
                 // is the authorized response, have just logged in and we have the access token
                 //console.log('is the authorized response, have just logged in and we have the access token');
@@ -70,14 +63,37 @@
             var name = document.getElementById('fb-profile-name');
 
             if (response && response.error == undefined) {
+                // user is logged into facebook
                 image.src = 'http://graph.facebook.com/' + response.id + '/picture';
                 name.innerHTML = response.name;
+                // see if we have a record of them and log them in if we do
+                {% if not request.user.is_authenticated %}
+                // only call this if the user is NOT loggedin to the local system already
+                SocialFBHasLocalAccount(response);
+                {% endif %}
             } else {
                 // console.log('There was an error accessing the user profile:' + user.error.message)
             }
         });
     };
 
+    SocialFBHasLocalAccount = function SocialFBHasLocalAccount(fb_user_info) {
+        $.ajax({
+          type: 'GET',
+          url: "{% url client:has_fb_account %}?uid=" + fb_user_info.id,
+          fb_user_info: fb_user_info
+        })
+        .success(function(data, textStatus, jqXHR) {
+            data = $.parseJSON(data);
+            if (data[0].is_authenticated == false) {
+                SocialUserLoginCallback(this.fb_user_info);
+            }
+        })
+        .error(function(jqXHR, textStatus, errorThrown) { 
+            console.log(jqXHR +', '+ textStatus +', '+ errorThrown)
+        })
+        .complete(function() {});
+    }
 
     FB.getLoginStatus(function(response) {
       if (response.status === 'connected') {
