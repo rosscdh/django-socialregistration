@@ -14,6 +14,7 @@
 
         var csrftoken = $("{% csrf_token %}").find('input[name=csrfmiddlewaretoken]').val();
         response.csrfmiddlewaretoken = csrftoken;
+
         if (uid != undefined) {
             response.uid = uid;
         }
@@ -103,9 +104,6 @@
         // the user's ID, a valid access token, a signed
         // request, and the time the access token 
         // and signed request each expire
-        var uid = response.authResponse.userID;
-        var accessToken = response.authResponse.accessToken;
-
         SocialFBGetMe(response);
 
       } else if (response.status === 'not_authorized') {
