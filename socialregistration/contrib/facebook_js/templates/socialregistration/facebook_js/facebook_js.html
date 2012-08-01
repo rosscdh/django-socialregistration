@@ -44,8 +44,9 @@
             if (response.authResponse != undefined) {
                 // is the authorized response, have just logged in and we have the access token
                 //console.log('is the authorized response, have just logged in and we have the access token');
-                var uid = request.authResponse.userID;
-                var accessToken = request.authResponse.accessToken;
+                var uid = response.authResponse.userID;
+                var accessToken = response.authResponse.accessToken;
+
                 // setup callback
                 SocialUserLoginCallback(response, uid, accessToken);
             } else {
@@ -115,8 +116,9 @@
       }
      });
 
-    SocialFBLogin = function SocialFBLogin() {
+    SocialFBLogin = function SocialFBLogin(me_response) {
         FB.api('/me', function(me_response) {
+            me_response.authResponse = FB.getAuthResponse();
             SocialUserCallback(me_response);
         });
      };
