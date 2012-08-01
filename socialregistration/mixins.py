@@ -225,7 +225,7 @@ class SignalMixin(object):
         Send a signal to provide misc profile data for other systems to 
         make use of. This signal can be sent at any time
         """
-        signals.connect.send(sender=profile.__class__, user=user, profile_data=profile_data,
+        signals.connect.send(sender=user.__class__, user=user, profile_data=profile_data,
             client=client, request=request)
 
 class SocialRegistration(CommonMixin, ClientMixin, ProfileMixin, SessionMixin,

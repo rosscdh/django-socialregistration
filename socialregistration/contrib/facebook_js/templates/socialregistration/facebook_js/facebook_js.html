@@ -18,6 +18,9 @@
         if (uid != undefined) {
             response.uid = uid;
         }
+
+        response.profile_photo = 'http://graph.facebook.com/' + response.id + '/picture';
+
         if (accessToken != undefined) {
             response.accessToken = accessToken;
         }
