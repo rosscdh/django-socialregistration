@@ -220,6 +220,14 @@ class SignalMixin(object):
         signals.connect.send(sender=profile.__class__, user=user, profile=profile,
             client=client, request=request)
 
+    def send_profile_data_signal(self, request, user, profile_data, client):
+        """
+        Send a signal to provide misc profile data for other systems to 
+        make use of. This signal can be sent at any time
+        """
+        signals.connect.send(sender=profile.__class__, user=user, profile_data=profile_data,
+            client=client, request=request)
+
 class SocialRegistration(CommonMixin, ClientMixin, ProfileMixin, SessionMixin,
     SignalMixin):
     """

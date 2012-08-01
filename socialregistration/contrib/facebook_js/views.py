@@ -82,6 +82,7 @@ class FacebookCallback(OAuthCallback):
         # Active user with existing profile: login, send signal and redirect
         self.login(request, user)
         self.send_login_signal(request, user, profile, client)
+        self.send_connect_signal(request, user, request.POST, client)
 
         return HttpResponse()
 
