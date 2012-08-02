@@ -17,7 +17,7 @@ class FacebookCallback(OAuthCallback):
     template_name = 'socialregistration/facebook_js/facebook.html'
 
     def generate_username(self, request):
-        return 'fb-%s' %(request.POST.get('username'))
+        return 'fb_%s' %(request.POST.get('username'))
 
     def update_or_create_user(self, request, user):
         """
