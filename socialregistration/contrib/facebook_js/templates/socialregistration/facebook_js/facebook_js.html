@@ -89,10 +89,12 @@
           fb_user_info: fb_user_info
         })
         .success(function(data, textStatus, jqXHR) {
+            {% if FACEBOOK_AUTO_LOGIN_IF_HAS_ACCOUNT %}
             data = $.parseJSON(data);
             if (data[0].is_authenticated == false) {
                 SocialUserLoginCallback(this.fb_user_info);
             }
+            {% endif %}
         })
         .error(function(jqXHR, textStatus, errorThrown) { 
             console.log(jqXHR +', '+ textStatus +', '+ errorThrown)
