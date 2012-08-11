@@ -82,9 +82,10 @@ class OAuthTest(object):
     def create_profile(self):
         raise NotImplementedError
     
-    def create_user(self):
+    def create_user(self, is_active=True):
         user = User.objects.create(username='alen')
         user.set_password('test')
+        user.is_active = is_active
         user.save()
         return user
     
@@ -196,6 +197,32 @@ class OAuthTest(object):
         
         self.assertEqual(1, counter.counter)
 
+    
+    def test_setup_callback_should_indicate_an_inactive_user(self):
+        user = self.create_user(is_active=False)
+        self.create_profile(user)
+
+        self.redirect()
+        self.callback()
+        response = self.setup_callback()
+
+        self.assertEqual(200, response.status_code, response.content)
+        self.assertContains(response, "inactive", 1)
+
+    def test_setup_callback_should_redirect_an_inactive_user(self):
+        settings.LOGIN_INACTIVE_REDIRECT_URL = '/inactive/'
+
+        user = self.create_user(is_active=False)
+        self.create_profile(user)
+
+        self.redirect()
+        self.callback()
+        response = self.setup_callback()
+
+        self.assertEqual(302, response.status_code, response.content)
+        self.assertTrue('/inactive/' in response['Location'])
+
+        settings.LOGIN_INACTIVE_REDIRECT_URL = False
 
 class OAuth2Test(OAuthTest):
 

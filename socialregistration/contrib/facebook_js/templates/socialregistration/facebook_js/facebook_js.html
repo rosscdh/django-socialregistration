@@ -1,0 +1,139 @@
+<div id="fb-root"></div>
+<script>
+  window.fbAsyncInit = function() {
+    FB.init({
+      appId      : '{{ FACEBOOK_API_KEY }}', // App ID
+      channelUrl : '//{{ request.get_host }}{% url socialregistration:facebook_js:channel %}', // Channel File
+      status     : true, // check login status
+      cookie     : true, // enable cookies to allow the server to access the session
+      xfbml      : true  // parse XFBML
+    });
+    // Additional initialization code here
+
+    SocialUserLoginCallback = function SocialUserLoginCallback(response, uid, accessToken) {
+
+        var csrftoken = $("{% csrf_token %}").find('input[name=csrfmiddlewaretoken]').val();
+        response.csrfmiddlewaretoken = csrftoken;
+
+        if (uid != undefined) {
+            response.uid = uid;
+        }
+
+        response.profile_photo = 'http://graph.facebook.com/' + response.id + '/picture';
+
+        if (accessToken != undefined) {
+            response.accessToken = accessToken;
+        }
+
+        var post_data = $.param(response);
+
+        $.ajax({
+          type: 'POST',
+          url: "{% url socialregistration:facebook_js:callback %}",
+          data: post_data,
+        })
+        .success(function(data, textStatus, jqXHR) {
+            console.log('')
+            document.location.reload();
+        })
+        .error(function(jqXHR, textStatus, errorThrown) { 
+            var data = $.parseJSON(jqXHR.responseText);
+        })
+        .complete(function() {});
+
+    };
+
+    SocialUserCallback = function SocialUserCallback(response) {
+        if (response.error == undefined && response.id != undefined) {
+            if (response.authResponse != undefined) {
+                // is the authorized response, have just logged in and we have the access token
+                //console.log('is the authorized response, have just logged in and we have the access token');
+                var uid = response.authResponse.userID;
+                var accessToken = response.authResponse.accessToken;
+
+                // setup callback
+                SocialUserLoginCallback(response, uid, accessToken);
+            } else {
+                // normal auth response no token
+                //console.log('normal auth response no token')
+                // login callback
+                SocialUserLoginCallback(response);
+            }
+        }
+    };
+
+    SocialFBGetMe = function SocialFBGetMe(response) {
+        FB.api('/me', function(response) {
+            var image = document.getElementById('fb-profile-image');
+            var name = document.getElementById('fb-profile-name');
+
+            if (response && response.error == undefined) {
+                // user is logged into facebook
+                image.src = 'http://graph.facebook.com/' + response.id + '/picture';
+                name.innerHTML = response.name;
+                // see if we have a record of them and log them in if we do
+                {% if not request.user.is_authenticated %}
+                // only call this if the user is NOT loggedin to the local system already
+                SocialFBHasLocalAccount(response);
+                {% endif %}
+            } else {
+                // console.log('There was an error accessing the user profile:' + user.error.message)
+            }
+        });
+    };
+
+    SocialFBHasLocalAccount = function SocialFBHasLocalAccount(fb_user_info) {
+        $.ajax({
+          type: 'GET',
+          url: "{% url client:has_fb_account %}?uid=" + fb_user_info.id,
+          fb_user_info: fb_user_info
+        })
+        .success(function(data, textStatus, jqXHR) {
+            {% if FACEBOOK_AUTO_LOGIN_IF_HAS_ACCOUNT %}
+            data = $.parseJSON(data);
+            if (data[0].is_authenticated == false) {
+                SocialUserLoginCallback(this.fb_user_info);
+            }
+            {% endif %}
+        })
+        .error(function(jqXHR, textStatus, errorThrown) { 
+            console.log(jqXHR +', '+ textStatus +', '+ errorThrown)
+        })
+        .complete(function() {});
+    }
+
+    FB.getLoginStatus(function(response) {
+      if (response.status === 'connected') {
+        // the user is logged in and has authenticated your
+        // app, and response.authResponse supplies
+        // the user's ID, a valid access token, a signed
+        // request, and the time the access token 
+        // and signed request each expire
+        SocialFBGetMe(response);
+
+      } else if (response.status === 'not_authorized') {
+        // the user is logged in to Facebook, 
+        // but has not authenticated your app
+      } else {
+        // the user isn't logged in to Facebook.
+      }
+     });
+
+    SocialFBLogin = function SocialFBLogin(me_response) {
+        FB.api('/me', function(me_response) {
+            me_response.authResponse = FB.getAuthResponse();
+            SocialUserCallback(me_response);
+        });
+     };
+
+  };
+  
+  // Load the SDK Asynchronously
+  (function(d){
+     var js, id = 'facebook-jssdk', ref = d.getElementsByTagName('script')[0];
+     if (d.getElementById(id)) {return;}
+     js = d.createElement('script'); js.id = id; js.async = true;
+     js.src = "//connect.facebook.net/en_US/all.js";
+     ref.parentNode.insertBefore(js, ref);
+   }(document));
+</script>

@@ -10,7 +10,7 @@ class FacebookRedirect(OAuthRedirect):
 class FacebookCallback(OAuthCallback):
     client = Facebook
     template_name = 'socialregistration/facebook/facebook.html'
-    
+
     def get_redirect(self):
         return reverse('socialregistration:facebook:setup')
 
@@ -18,6 +18,6 @@ class FacebookSetup(SetupCallback):
     client = Facebook
     profile = FacebookProfile
     template_name = 'socialregistration/facebook/facebook.html'
-    
+
     def get_lookup_kwargs(self, request, client):
         return {'uid': client.get_user_info()['id']}
