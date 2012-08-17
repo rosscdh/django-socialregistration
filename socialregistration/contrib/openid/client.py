@@ -1,12 +1,18 @@
+from django.conf import settings
 from django.contrib.sites.models import Site
 from django.core.urlresolvers import reverse
 from openid.consumer import consumer
 from socialregistration.clients import Client
 from socialregistration.contrib.openid.storage import OpenIDStore
 from socialregistration.settings import SESSION_KEY
+from socialregistration.mixins import CommonMixin
 import urlparse
 
-class OpenIDClient(Client):
+AX_REQUEST_FUNCTION = getattr(settings, 'SOCIALREGISTRATION_ADD_AX_REQUEST_FUNCTION',
+    None)
+
+class OpenIDClient(Client,CommonMixin):
+
     def __init__(self, session_data, endpoint_url):
         self.endpoint_url = endpoint_url
         self.store = OpenIDStore()
@@ -22,11 +28,24 @@ class OpenIDClient(Client):
             reverse('socialregistration:openid:callback'))
     
     def get_redirect_url(self):
+        """
+        Return openid redirect url. You are able to append ax requests by passing a 
+        ``SOCIALREGISTRATION_ADD_AX_REQUEST_FUNCTION``. and specifying a tuple of
+        ``SOCIALREGISTRATION_AX_URLS`` (('http://schema.openid.net/contact/email',True))
+        """
         auth_request = self.consumer.begin(self.endpoint_url)
         
+        if AX_REQUEST_FUNCTION:
+            func = self.import_attribute(AX_REQUEST_FUNCTION)
+            ax_request = func(auth_request)
+            # appendif not None
+            if ax_request:
+                # update with new items
+                auth_request.addExtension(ax_request)
+
         redirect_url = auth_request.redirectURL(self.get_realm(),
             self.get_callback_url())
-        
+
         return redirect_url
     
     def complete(self, GET, path):
