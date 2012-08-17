@@ -69,8 +69,10 @@
 
             if (response && response.error == undefined) {
                 // user is logged into facebook
-                image.src = 'http://graph.facebook.com/' + response.id + '/picture';
-                name.innerHTML = response.name;
+                if (image != undefined)
+                  image.src = 'http://graph.facebook.com/' + response.id + '/picture';
+                if (name != undefined)
+                  name.innerHTML = response.name;
                 // see if we have a record of them and log them in if we do
                 {% if not request.user.is_authenticated %}
                 // only call this if the user is NOT loggedin to the local system already
