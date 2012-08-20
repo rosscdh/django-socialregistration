@@ -121,15 +121,46 @@
       }
      });
 
+     SocialFBExtendedAccessAuthenticationToken = function SocialFBExtendedAccessAuthenticationToken(response) {
+        
+         $.ajax({
+           type: 'GET',
+           url: "https://graph.facebook.com/oauth/access_token?client_id={{ FACEBOOK_API_KEY }}&client_secret={{ FACEBOOK_SECRET_KEY }}&grant_type=fb_exchange_token&fb_exchange_token=" + response.authResponse.accessToken,
+         })
+         .success(function(data, textStatus, jqXHR) {
+           data = $.parseQuerystring(data);
+           response.authResponse.accessToken = data.access_token;
+           response.authResponse.expires = data.expires;
+           SocialUserCallback(response);
+         })
+         .error(function(jqXHR, textStatus, errorThrown) { 
+             console.log(jqXHR +', '+ textStatus +', '+ errorThrown)
+         })
+         .complete(function() {});
+     }
+
     SocialFBLogin = function SocialFBLogin(me_response) {
         FB.api('/me', function(me_response) {
             me_response.authResponse = FB.getAuthResponse();
-            SocialUserCallback(me_response);
+            SocialFBExtendedAccessAuthenticationToken(me_response);
         });
      };
 
   };
-  
+
+  $.extend({
+    parseQuerystring: function(url){
+      var nvpair = {};
+      var qs = (url == undefined) ? window.location.search.replace('?', '') : url ;
+      var pairs = qs.split('&');
+      $.each(pairs, function(i, v){
+        var pair = v.split('=');
+        nvpair[pair[0]] = pair[1];
+      });
+      return nvpair;
+    }
+  });
+
   // Load the SDK Asynchronously
   (function(d){
      var js, id = 'facebook-jssdk', ref = d.getElementsByTagName('script')[0];
