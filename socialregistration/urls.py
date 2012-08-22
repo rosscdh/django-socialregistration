@@ -19,6 +19,11 @@ if 'socialregistration.contrib.linkedin' in settings.INSTALLED_APPS:
         url(r'^linkedin/', include('socialregistration.contrib.linkedin.urls',
             namespace='linkedin')))
 
+if 'socialregistration.contrib.linkedin_js' in settings.INSTALLED_APPS:
+    urlpatterns = urlpatterns + patterns('',
+        url(r'^linkedin/js/', include('socialregistration.contrib.linkedin_js.urls',
+            namespace='linkedin_js')))
+
 if 'socialregistration.contrib.facebook' in settings.INSTALLED_APPS:
     urlpatterns = urlpatterns + patterns('',
         url(r'^facebook/', include('socialregistration.contrib.facebook.urls',
@@ -26,7 +31,7 @@ if 'socialregistration.contrib.facebook' in settings.INSTALLED_APPS:
 
 if 'socialregistration.contrib.facebook_js' in settings.INSTALLED_APPS:
     urlpatterns = urlpatterns + patterns('',
-        url(r'^facebook/', include('socialregistration.contrib.facebook_js.urls',
+        url(r'^facebook/js/', include('socialregistration.contrib.facebook_js.urls',
             namespace='facebook_js')))
 
 if 'socialregistration.contrib.github' in settings.INSTALLED_APPS:

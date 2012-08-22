@@ -2,12 +2,15 @@ from django.contrib.auth import authenticate
 from django.contrib.auth.models import User
 from django.contrib.sites.models import Site
 from django.db import models
-from socialregistration.signals import connect
+from socialregistration.signals import connect, login
 
 class LinkedInProfile(models.Model):
     user = models.ForeignKey(User, unique=True)
     site = models.ForeignKey(Site, default=Site.objects.get_current)
     linkedin_id = models.CharField(max_length=25)
+
+    class Meta:
+        db_table = 'socialregistration_linkedinprofile'
 
     def __unicode__(self):
         try:
@@ -23,11 +26,16 @@ class LinkedInRequestToken(models.Model):
     oauth_token = models.CharField(max_length=80)
     oauth_token_secret = models.CharField(max_length=80)
 
+    class Meta:
+        db_table = 'socialregistration_linkedinrequesttoken'
+
 class LinkedInAccessToken(models.Model):
     profile = models.OneToOneField(LinkedInProfile, related_name='access_token')
     oauth_token = models.CharField(max_length=80)
     oauth_token_secret = models.CharField(max_length=80)
 
+    class Meta:
+        db_table = 'socialregistration_linkedinaccesstoken'
 
 def save_linkedin_token(sender, user, profile, client, **kwargs):
     try:
@@ -50,3 +58,5 @@ def save_linkedin_token(sender, user, profile, client, **kwargs):
 
 connect.connect(save_linkedin_token, sender=LinkedInProfile,
     dispatch_uid='socialregistration_linkedin_token')
+login.connect(save_linkedin_token, sender=LinkedInProfile,
+    dispatch_uid = 'socialregistration.linkedin.login')

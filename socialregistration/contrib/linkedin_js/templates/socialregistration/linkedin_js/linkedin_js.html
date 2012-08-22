@@ -1,5 +1,6 @@
 <script type="text/javascript" src="http://platform.linkedin.com/in.js">
 api_key: {{ LINKEDIN_API_KEY }}
+scope: {{ LINKEDIN_REQUEST_PERMISSIONS }}
 onLoad: onLinkedInLoad
 authorize: true
 </script>
@@ -7,14 +8,53 @@ authorize: true
 <script type="text/javascript">
   // Load the IN Functions
   onLinkedInLoad = function onLinkedInLoad() {
+    {% if not request.user.is_authenticated %}
+    // only if we are not logged in already
     IN.Event.on(IN, "auth", onLinkedInAuth);
+    {% endif %}
   };
   onLinkedInAuth = function onLinkedInAuth() {
-       IN.API.Profile("me").result(displayProfiles);
+       // IN.API.Profile("me").result(authenticateWithLinkedIn);
+       IN.API.Profile("me")
+        .fields("id", "firstName", "lastName", "email-address", "picture-url", "public-profile-url", "summary", "current-status", "industry")
+        .result(authenticateWithLinkedIn);
+//        .result(displayProfile);
   };
-  displayProfiles = function displayProfiles(profiles) {
+  authenticateWithLinkedIn = function authenticateWithLinkedIn(profiles) {
+    member = profiles.values[0];
+
+    var csrftoken = $("{% csrf_token %}").find('input[name=csrfmiddlewaretoken]').val();
+
+    response = {
+      'csrfmiddlewaretoken': csrftoken,
+      'id': member.id,
+      'email': member.emailAddress,
+      'first_name': member.firstName,
+      'last_name': member.lastName,
+      'industry': member.industry,
+      'public_profile': member.publicProfileUrl,
+    }
+    var post_data = $.param(response);
+
+    $.ajax({
+      type: 'POST',
+      url: "{% url socialregistration:linkedin_js:callback %}",
+      data: post_data,
+    })
+    .success(function(data, textStatus, jqXHR) {
+        console.log('')
+        document.location.reload();
+    })
+    .error(function(jqXHR, textStatus, errorThrown) { 
+        var data = $.parseJSON(jqXHR.responseText);
+    })
+    .complete(function() {});
+  }
+  displayProfile = function displayProfile(profiles) {
        member = profiles.values[0];
-       document.getElementById("profiles").innerHTML = 
-            "<p id=\"" + member.id + "\">Hello " +  member.firstName + " " + member.lastName + "</p>";
+       console.log(profiles)
+       console.log(member)
+       // document.getElementById("profiles").innerHTML = 
+       //      "<p id=\"" + member.id + "\">Hello " +  member.firstName + " " + member.lastName + "</p>";
   };
 </script>
