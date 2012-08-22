@@ -1,0 +1,20 @@
+<script type="text/javascript" src="http://platform.linkedin.com/in.js">
+api_key: {{ LINKEDIN_API_KEY }}
+onLoad: onLinkedInLoad
+authorize: true
+</script>
+
+<script type="text/javascript">
+  // Load the IN Functions
+  onLinkedInLoad = function onLinkedInLoad() {
+    IN.Event.on(IN, "auth", onLinkedInAuth);
+  };
+  onLinkedInAuth = function onLinkedInAuth() {
+       IN.API.Profile("me").result(displayProfiles);
+  };
+  displayProfiles = function displayProfiles(profiles) {
+       member = profiles.values[0];
+       document.getElementById("profiles").innerHTML = 
+            "<p id=\"" + member.id + "\">Hello " +  member.firstName + " " + member.lastName + "</p>";
+  };
+</script>

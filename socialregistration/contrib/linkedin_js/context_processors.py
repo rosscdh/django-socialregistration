@@ -1,0 +1,23 @@
+from django.conf import settings
+
+LINKEDIN_API_KEY = getattr(settings, 'LINKEDIN_API_KEY', None)
+LINKEDIN_API_SECRET = getattr(settings, 'LINKEDIN_API_SECRET', None)
+LINKEDIN_OAUTH_TOKEN = getattr(settings, 'LINKEDIN_OAUTH_TOKEN', None)
+LINKEDIN_OAUTH_SECRET = getattr(settings, 'LINKEDIN_OAUTH_SECRET', None)
+# LINKEDIN_REQUEST_PERMISSIONS = getattr(settings, 'LINKEDIN_REQUEST_PERMISSIONS', None)
+# LINKEDIN_AUTO_LOGIN_IF_HAS_ACCOUNT = getattr(settings, 'LINKEDIN_AUTO_LOGIN_IF_HAS_ACCOUNT', False)
+
+def LinkedinTemplateVars(request):
+    """
+    Provides the linkedin variables
+    LINKEDIN_API_KEY
+    LINKEDIN_API_SECRET
+    LINKEDIN_OAUTH_TOKEN
+    LINKEDIN_OAUTH_SECRET
+    """
+    return {
+    'LINKEDIN_API_KEY': LINKEDIN_API_KEY,
+    'LINKEDIN_API_SECRET': LINKEDIN_API_SECRET,
+    'LINKEDIN_OAUTH_TOKEN': LINKEDIN_OAUTH_TOKEN,
+    'LINKEDIN_OAUTH_SECRET': LINKEDIN_OAUTH_SECRET,
+    }
