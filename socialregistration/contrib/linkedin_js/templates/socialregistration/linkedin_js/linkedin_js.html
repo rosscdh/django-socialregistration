@@ -2,23 +2,25 @@
 api_key: {{ LINKEDIN_API_KEY }}
 scope: {{ LINKEDIN_REQUEST_PERMISSIONS }}
 onLoad: onLinkedInLoad
-authorize: true
+authorize: false
 </script>
 
 <script type="text/javascript">
   // Load the IN Functions
   onLinkedInLoad = function onLinkedInLoad() {
-    {% if not request.user.is_authenticated %}
     // only if we are not logged in already
     IN.Event.on(IN, "auth", onLinkedInAuth);
-    {% endif %}
   };
   onLinkedInAuth = function onLinkedInAuth() {
-       // IN.API.Profile("me").result(authenticateWithLinkedIn);
-       IN.API.Profile("me")
-        .fields("id", "firstName", "lastName", "email-address", "picture-url", "public-profile-url", "summary", "current-status", "industry")
-//        .result(authenticateWithLinkedIn);
-        .result(displayProfile);
+    // IN.API.Profile("me").result(authenticateWithLinkedIn);
+    if (IN.User.isAuthorized() == true) {
+      IN.API.Profile("me")
+      .fields("id", "firstName", "lastName", "email-address", "picture-url", "public-profile-url", "summary", "current-status", "industry")
+      .result(authenticateWithLinkedIn);
+      //.result(displayProfile);
+    }else{
+      // updated token?
+    }
   };
   authenticateWithLinkedIn = function authenticateWithLinkedIn(profiles) {
     member = profiles.values[0];
