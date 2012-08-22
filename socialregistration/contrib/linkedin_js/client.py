@@ -9,13 +9,13 @@ import urlparse
 class LinkedIn(OAuth):
     api_key = getattr(settings, 'LINKEDIN_CONSUMER_KEY', '')
     secret_key = getattr(settings, 'LINKEDIN_CONSUMER_SECRET_KEY', '')
-    
+
     request_token_url = 'https://api.linkedin.com/uas/oauth/requestToken'
     access_token_url = 'https://api.linkedin.com/uas/oauth/accessToken'
     auth_url = 'https://www.linkedin.com/uas/oauth/authenticate'
-    
+
     _user_info = None
-    
+
     def get_callback_url(self):
         if self.is_https():
             return urlparse.urljoin(

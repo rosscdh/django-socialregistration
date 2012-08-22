@@ -1,7 +1,8 @@
 from django.core.urlresolvers import reverse
+from django.http import HttpResponse, HttpResponseBadRequest, HttpResponseRedirect
 from django.contrib.auth.models import User
 
-from socialregistration.contrib.linkedin.client import LinkedIn
+from socialregistration.contrib.linkedin_js.client import LinkedIn
 from socialregistration.contrib.linkedin_js.models import LinkedInProfile
 from socialregistration.views import OAuthRedirect, OAuthCallback, SetupCallback
 

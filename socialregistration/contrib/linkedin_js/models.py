@@ -10,6 +10,7 @@ class LinkedInProfile(models.Model):
     linkedin_id = models.CharField(max_length=25)
 
     class Meta:
+        app_label = 'socialregistration'
         db_table = 'socialregistration_linkedinprofile'
 
     def __unicode__(self):
@@ -27,6 +28,7 @@ class LinkedInRequestToken(models.Model):
     oauth_token_secret = models.CharField(max_length=80)
 
     class Meta:
+        app_label = 'socialregistration'
         db_table = 'socialregistration_linkedinrequesttoken'
 
 class LinkedInAccessToken(models.Model):
@@ -35,6 +37,7 @@ class LinkedInAccessToken(models.Model):
     oauth_token_secret = models.CharField(max_length=80)
 
     class Meta:
+        app_label = 'socialregistration'
         db_table = 'socialregistration_linkedinaccesstoken'
 
 def save_linkedin_token(sender, user, profile, client, **kwargs):
@@ -56,7 +59,8 @@ def save_linkedin_token(sender, user, profile, client, **kwargs):
         oauth_token_secret=client.get_access_token().secret)
 
 
-connect.connect(save_linkedin_token, sender=LinkedInProfile,
-    dispatch_uid='socialregistration_linkedin_token')
-login.connect(save_linkedin_token, sender=LinkedInProfile,
-    dispatch_uid = 'socialregistration.linkedin.login')
+# Disconnect the signals for linkedin until we figure out how to get accessToken data from the js api
+# connect.connect(save_linkedin_token, sender=LinkedInProfile,
+#     dispatch_uid='socialregistration.linkedin.token')
+# login.connect(save_linkedin_token, sender=LinkedInProfile,
+#     dispatch_uid='socialregistration.linkedin.login')
