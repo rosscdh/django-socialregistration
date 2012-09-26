@@ -4,11 +4,11 @@
     FB.init({
       appId      : '{{ FACEBOOK_API_KEY }}', // App ID
       channelUrl : '//{{ request.get_host }}{% url socialregistration:facebook_js:channel %}', // Channel File
-      status     : true, // check login status
+      status     : false, // check login status
       cookie     : true, // enable cookies to allow the server to access the session
       xfbml      : true  // parse XFBML
     });
-    // Additional initialization code here
+    // Additional initialization code here 
 
     SocialUserLoginCallback = function SocialUserLoginCallback(response, uid, accessToken) {
 
@@ -122,7 +122,6 @@
      });
 
      SocialFBExtendedAccessAuthenticationToken = function SocialFBExtendedAccessAuthenticationToken(response) {
-        
          $.ajax({
            type: 'GET',
            url: "https://graph.facebook.com/oauth/access_token?client_id={{ FACEBOOK_API_KEY }}&client_secret={{ FACEBOOK_SECRET_KEY }}&grant_type=fb_exchange_token&fb_exchange_token=" + response.authResponse.accessToken,
@@ -139,11 +138,14 @@
          .complete(function() {});
      }
 
-    SocialFBLogin = function SocialFBLogin(me_response) {
-        FB.api('/me', function(me_response) {
-            me_response.authResponse = FB.getAuthResponse();
-            SocialFBExtendedAccessAuthenticationToken(me_response);
-        });
+
+    SocialFBLogin = function SocialFBLogin() {
+        FB.login(function(response) {
+          FB.api('/me', function(response) {
+              response.authResponse = FB.getAuthResponse();
+              SocialFBExtendedAccessAuthenticationToken(response);
+          });
+        }, {scope: '{{ FACEBOOK_REQUEST_PERMISSIONS }}'});
      };
 
   };
