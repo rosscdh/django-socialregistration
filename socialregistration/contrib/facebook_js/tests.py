@@ -54,4 +54,4 @@ class TestFacebook(OAuth2Test, TestCase):
 
 class TestAuthenticationBackend(TestCase):
     def test_authentication_backend_should_be_configured_in_settings(self):
-        self.assertTrue('socialregistration.contrib.facebook.auth.FacebookAuth' in settings.AUTHENTICATION_BACKENDS)
+        self.assertTrue('socialregistration.contrib.facebook_js.auth.FacebookAuth' in settings.AUTHENTICATION_BACKENDS)

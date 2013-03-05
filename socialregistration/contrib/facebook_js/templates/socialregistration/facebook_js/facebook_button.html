@@ -1,9 +1,3 @@
-{% include 'socialregistration/facebook_js/facebook_js.html' %}
-
-<form class="connect-button" name="login" method="post" action="{% url socialregistration:facebook:redirect %}">
-{% csrf_token %}
-{% if next %}
-    <input type="hidden" name="next" value="{{ next }}" />
-{% endif %}
-<input type="image" onclick="this.form.submit();" src="{% if button %}{{ button }}{% else %}http://static.ak.fbcdn.net/images/fbconnect/login-buttons/connect_light_large_long.gif{% endif %}" />
-</form>
+{% load i18n %}
+<!-- <fb:login-button id="fb_login-button" size="large" scope="{{ FACEBOOK_REQUEST_PERMISSIONS }}">{% trans 'Connect with Facebook' %}</fb:login-button> -->
+<img src="http://static.ak.fbcdn.net/images/fbconnect/login-buttons/connect_light_large_short.gif" style="cursor:pointer;" id="connect-facebook" border="0" />
