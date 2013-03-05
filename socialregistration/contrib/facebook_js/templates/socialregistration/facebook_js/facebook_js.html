@@ -72,37 +72,16 @@
                 if (image != undefined)
                   image.src = 'http://graph.facebook.com/' + response.id + '/picture';
                 if (name != undefined)
-                  name.innerHTML = response.name;
-                // see if we have a record of them and log them in if we do
-                {% if not request.user.is_authenticated %}
-                // only call this if the user is NOT loggedin to the local system already
-                SocialFBHasLocalAccount(response);
-                {% endif %}
+                    name.innerHTML = response.name;
+                    // see if we have a record of them and log them in if we do
+                    {% if not request.user.is_authenticated %}
+                    // only call this if the user is NOT loggedin to the local system already
+                    {% endif %}
             } else {
                 // console.log('There was an error accessing the user profile:' + user.error.message)
             }
         });
     };
-
-    SocialFBHasLocalAccount = function SocialFBHasLocalAccount(fb_user_info) {
-        $.ajax({
-          type: 'GET',
-          url: "{% url client:has_fb_account %}?uid=" + fb_user_info.id,
-          fb_user_info: fb_user_info
-        })
-        .success(function(data, textStatus, jqXHR) {
-            {% if FACEBOOK_AUTO_LOGIN_IF_HAS_ACCOUNT %}
-            data = $.parseJSON(data);
-            if (data[0].is_authenticated == false) {
-                SocialUserLoginCallback(this.fb_user_info);
-            }
-            {% endif %}
-        })
-        .error(function(jqXHR, textStatus, errorThrown) { 
-            console.log(jqXHR +', '+ textStatus +', '+ errorThrown)
-        })
-        .complete(function() {});
-    }
 
     FB.getLoginStatus(function(response) {
       if (response.status === 'connected') {
